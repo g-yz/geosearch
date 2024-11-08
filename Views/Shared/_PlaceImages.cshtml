@@ -1,0 +1,83 @@
+﻿@model GeoSearch.Models.FoursquarePlaceImagesModel
+
+<h2>Images</h2>
+
+@if (Model != null && Model.Images != null  && Model.Images.Count > 0)
+{
+    <div class="image-gallery">
+        @foreach (var image in Model.Images)
+        {
+            <div class="image-card">
+
+                <img src="@($"{image.Prefix}250x300{image.Suffix}")" alt="@($"Image {@image.Id}")" />
+                <p> @image.Created_At.ToString("g")</p>
+
+                <h3>Classifications</h3>
+                <ul>
+                    @if (image != null && image.Classifications != null && image.Classifications.Count > 0)
+                    {
+                        @foreach (var classification in image.Classifications)
+                        {
+                            <li>@classification</li>
+                        }
+                    }
+                </ul>
+
+                @if (image != null && image.Tip != null)
+                {
+                    <h3>Tip Information</h3>
+                    <p><strong>Tip ID:</strong> @image.Tip.Id</p>
+                    <p><strong>Tip Created At:</strong> @image.Tip.Created_At.ToString("g")</p>
+                    <p><strong>Text:</strong> @image.Tip.Text</p>
+                    <p><strong>URL:</strong> <a href="@image.Tip.Url" target="_blank">@image.Tip.Url</a></p>
+                    <p><strong>Language:</strong> @image.Tip.Lang</p>
+                    <p><strong>Agree Count:</strong> @image.Tip.Agree_Count</p>
+                    <p><strong>Disagree Count:</strong> @image.Tip.Disagree_Count</p>
+                }
+                <hr />
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>No images found for this place.</p>
+}
+
+<style>
+    .image-gallery {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        justify-content: center;
+    }
+
+    .image-card {
+        width: 250px;
+        height: 300px;
+        text-align: center;
+        border: 1px solid #ddd;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        overflow: hidden;
+    }
+
+    .image-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .image-card:hover {
+        transform: scale(1.05);
+    }
+
+    .image-details {
+        margin-top: 10px;
+        font-size: 14px;
+        color: #555;
+    }
+</style>

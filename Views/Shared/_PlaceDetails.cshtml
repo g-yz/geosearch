@@ -1,0 +1,98 @@
+﻿@model GeoSearch.Models.FoursquarePlaceDetailsModel
+
+@if (Model != null)
+{
+    <h2>@Model.Name</h2>
+
+    <!-- Place Info -->
+    <p><strong>Description:</strong> @Model.Description</p>
+    <p><strong>Email:</strong> @Model.Email</p>
+    <p><strong>Fax:</strong> @Model.Fax</p>
+    <p><strong>Phone:</strong> @Model.Tel</p>
+    <p><strong>Website:</strong> <a href="@Model.Website" target="_blank">@Model.Website</a></p>
+    <p><strong>Verified:</strong> @(Model.Verified ? "Yes" : "No")</p>
+
+    <!-- Categories -->
+    @if (Model != null && Model.Location != null)
+    {
+        <h2>Location</h2>
+        <p><strong>Address:</strong> @Model.Location.Formatted_Address</p>
+    }
+
+    <!-- Categories -->
+    @if (Model != null && Model.Categories != null)
+    {
+        <h3>Categories</h3>
+        <ul>
+            @foreach (var category in Model.Categories)
+            {
+                <li>
+                    <strong>@category.Name</strong>  (@category.Short_Name)
+                    @if (category.Icon != null)
+                    {
+                        var iconUrl = $"{category.Icon.Prefix}bg_32{category.Icon.Suffix}";
+                        <img src="@iconUrl" alt="@category.Name" />
+                    }
+                </li>
+            }
+        </ul>
+    }
+
+    <!-- Hours -->
+    @if (Model != null && Model.Hours != null)
+    {
+        <h3>Hours</h3>
+        <p><strong>Is Local Holiday:</strong> @(Model.Hours.Is_Local_Holiday ? "Yes" : "No")</p>
+        <p><strong>Open Now:</strong> @(Model.Hours.Open_Now ? "Yes" : "No")</p>
+    }
+
+    <!-- Photos -->
+    @if (Model != null && Model.Photos != null)
+    {
+        <h3>Photos</h3>
+        @foreach (var photo in Model.Photos)
+        {
+            <div>
+                <img src="@($"{photo.Prefix}250x300{photo.Suffix}")" alt="@($"Image {@photo.Id}")" />
+                <p><strong>Date:</strong> @photo.Created_At.ToString("MMMM dd, yyyy")</p>
+            </div>
+        }
+    }
+
+    <!-- Stats -->
+    @if (Model != null && Model.Stats != null)
+    {
+        <h3>Stats</h3>
+        <p><strong>Total Photos:</strong> @Model.Stats.Total_Photos</p>
+        <p><strong>Total Ratings:</strong> @Model.Stats.Total_Ratings</p>
+        <p><strong>Total Tips:</strong> @Model.Stats.Total_Tips</p>
+    }
+
+    <!-- Social Media -->
+    @if (Model != null && Model.Social_Media != null)
+    {
+        <h3>Social Media</h3>
+        <p>
+            <strong>Facebook:</strong>
+            <a href="@($"https://facebook.com/{Model.Social_Media.Facebook_Id}")" target="_blank">
+                @Model.Social_Media.Facebook_Id
+            </a>
+        </p>
+        <p>
+            <strong>Instagram:</strong>
+            <a href="@($"https://instagram.com/{Model.Social_Media.Instagram}")" target="_blank">
+                @Model.Social_Media.Instagram
+            </a>
+        </p>
+        <p>
+            <strong>Twitter:</strong>
+            <a href="@($"https://twitter.com/{Model.Social_Media.Twitter}")" target="_blank">
+                @Model.Social_Media.Twitter
+            </a>
+        </p>
+    }
+}
+else
+{
+    <p>No details found for this place.</p>
+}

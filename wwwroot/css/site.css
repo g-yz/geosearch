@@ -1,4 +1,4 @@
-html {
+/*html {
   font-size: 14px;
 }
 
@@ -19,4 +19,97 @@ html {
 
 body {
   margin-bottom: 60px;
+}*/
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap");
+
+:root {
+    font-size: 16px;
+    font-family: "open sans";
+    --text-primary: #000000;
+    --text-secondary: #ececec;
+    --bg-primary: #23232e;
+    --bg-secondary: #141418;
+    --transition-speed: 600ms;
+}
+
+body {
+    color: black;
+    background-color: white;
+    margin: 0;
+    padding: 0;
+}
+
+body::-webkit-scrollbar {
+    width: 0.25rem;
+}
+
+body::-webkit-scrollbar-track {
+    background: #1e1e24;
+}
+
+body::-webkit-scrollbar-thumb {
+    background: #6649b8;
+}
+
+.main {
+    margin: 0 20px;
+}
+
+.navbar {
+    position: fixed;
+    background-color: var(--bg-primary);
+}
+
+.nav-item {
+    margin-top: 10px;
+    padding: 1rem;
+}
+
+.navbar-nav {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+}
+
+svg {
+    color: var(--text-secondary);
+    font-size: 2rem;
+}
+
+@media only screen and (max-width: 600px) {
+    .navbar {
+        bottom: 0;
+        width: 100vw;
+        height: 5rem;
+    }
+
+    .navbar-nav {
+        justify-content: space-around;
+        flex-direction: row;
+    }
+}
+
+@media only screen and (min-width: 600px) {
+    .navbar {
+        width: 5rem;
+        height: 100vh;
+    }
+
+    .navbar-nav {
+        align-items: center;
+        flex-direction: column;
+    }
+
+    .nav-item {
+        margin-top: 30px;
+        padding: 1rem;
+    }
+
+    .main {
+        margin-left: 5rem;
+        padding: 1rem;
+    }
 }

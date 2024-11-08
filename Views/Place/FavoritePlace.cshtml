@@ -1,0 +1,36 @@
+﻿@model List<GeoSearch.Data.FavoritePlace>
+
+@{
+    ViewData["Title"] = "Favorite Places";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Place Name</th>
+                <th>Address</th>
+                <th>Categories</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var place in Model)
+            {
+                <tr>
+                    <td>@place.Name</td>
+                    <td>@place.Address</td>
+                   @*  <td>
+                        @string.Join(", ", place.Categories)
+                    </td> *@
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No favorite places found.</p>
+}

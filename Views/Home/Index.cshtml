@@ -1,8 +1,131 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model GeoSearch.Models.SearchModel
+
+@{
+    ViewBag.Title = "Search Locations";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!-- Search Form -->
+@using (Html.BeginForm("FindLocations", "Home", FormMethod.Post))
+{
+    <div>
+        @Html.LabelFor(m => m.Location)
+        @Html.TextBoxFor(m => m.Location, new { @class = "form-control" })
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+}
+
+<!-- Error message if no results found -->
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <p style="color: red;">@ViewBag.ErrorMessage</p>
+}
+
+<!-- Display the list of coordinates if available -->
+@if (Model != null && Model.Response != null  && Model.Response.Results != null && Model.Response.Results.Count > 0)
+{
+    <h3>Results for "@Model.Location":</h3>
+    <ul>
+        @foreach (var place in Model.Response.Results)
+        {
+            <li>
+                <strong>@place.Name</strong><br />
+                Latitude: @place.Geocodes.Main.Latitude, Longitude: @place.Geocodes.Main.Longitude
+            </li>
+        }
+    </ul>
+}
+
+<!-- Map Container -->
+<div id="map" style="width: 100%; height: 400px;"></div>
+
+<script>
+    function initializeMap() {
+        var map = L.map('map').setView([51.505, -0.09], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        return map;
+    }
+
+    function addMarkerToMap(map, latitude, longitude, placeName, placeId) {
+        var marker = L.marker([latitude, longitude]).addTo(map);
+        bindPopupToMarker(marker, placeName, latitude, longitude, placeId);
+        return marker;
+    }
+
+    function bindPopupToMarker(marker, placeName, latitude, longitude, placeId) {
+        var popupContent = `
+        <strong>${placeName}</strong><br />
+        Latitude: ${latitude}<br />
+        Longitude: ${longitude}<br />
+        <form method="post" action="@Url.Action("AddAsFavorite", "Place")">
+                <input type="hidden" name="FsqId" value="${placeId}" />
+            <input type="hidden" name="Name" value="${placeName}" />
+            <input type="hidden" name="Address" value="Some address" />
+            <button type="submit" class="popup-btn">Add to Favorites</button>
+        </form>
+            <a href="/Place/Details/${placeId}" class="popup-btn">View Details</a>
+    `;
+      marker.bindPopup(popupContent);
+    }
+
+    function addHoverEffect(marker) {
+        marker.on('mouseover', function () {
+            this.openPopup();
+
+            var popup = this.getPopup();
+            setTimeout(function () {
+                popup._close();
+            }, 10000);  // 10000 milliseconds = 10 seconds
+        });
+    }
+
+    function addMarkersToMap(map, places) {
+        var markerPositions = [];
+
+        places.forEach(function (place) {
+            var latitude = place?.geocodes?.main?.latitude;
+            var longitude = place?.geocodes?.main?.longitude;
+            var placeName = place?.name;
+            var placeId = place?.fsq_id;
+
+            var marker = addMarkerToMap(map, latitude, longitude, placeName, placeId);
+            addHoverEffect(marker);
+            markerPositions.push([latitude, longitude]);
+        });
+
+        return markerPositions;
+    }
+
+    function setMapView(map, geoBounds) {
+        if (geoBounds && geoBounds.circle) {
+            var center = geoBounds.circle.center;
+            map.setView(new L.LatLng(center.latitude, center.longitude), 3);
+        }
+    }
+
+    function fitMapToMarkers(map, markerPositions) {
+        if (markerPositions.length > 0) {
+            var bounds = L.latLngBounds(markerPositions);
+            map.fitBounds(bounds);
+        }
+    }
+
+    function loadMap() {
+        var map = initializeMap();
+        var places = @Html.Raw(Json.Serialize(Model.Response.Results));
+
+        if (places != null && places.length > 0) {
+            var markerPositions = addMarkersToMap(map, places);
+            var geoBounds = @Html.Raw(Json.Serialize(Model.Response.Context?.Geo_bounds));
+
+            setMapView(map, geoBounds);
+            fitMapToMarkers(map, markerPositions);
+        } else {
+            console.log("No places found.");
+        }
+    }
+
+    loadMap();
+    
+</script>

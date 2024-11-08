@@ -1,0 +1,65 @@
+﻿@model GeoSearch.Models.FoursquarePlaceTipsModel
+
+
+<h2>Reviews</h2>
+
+@if (Model?.Tips != null && Model.Tips.Count > 0)
+{
+    <div class="tips-gallery">
+        @foreach (var tip in Model.Tips)
+        {
+            <div class="tip-card">
+                @if (!string.IsNullOrEmpty(tip.Text))
+                {
+                    <p><strong>Tip:</strong> @tip.Text</p>
+                }
+
+                @if (!string.IsNullOrEmpty(tip.Lang))
+                {
+                    <p><strong>Language:</strong> @tip.Lang</p>
+                }
+
+                @if (tip.Agree_Count > 0)
+                {
+                    <p><strong>Agree:</strong> @tip.Agree_Count</p>
+                }
+
+                @if (tip.Disagree_Count > 0)
+                {
+                    <p><strong>Disagree:</strong> @tip.Disagree_Count</p>
+                }
+
+                @if (tip.CreatedAt != default(DateTime))
+                {
+                    <p><strong>Date:</strong> @tip.CreatedAt.ToString("MMMM dd, yyyy")</p>
+                }
+
+
+                @if (tip.Photo != null)
+                {
+                    <div class="photo">
+                        <img src="@($"{tip.Photo.Prefix}250x300{tip.Photo.Suffix}")" alt="@($"Image {@tip.Id}")" />
+                        @if (tip.Photo.Classifications != null)
+                        {
+                            <p><strong>Classifications:</strong> @string.Join(", ", tip.Photo.Classifications)</p>
+                        }
+                    </div>
+                }
+
+                @if (tip.Photo?.Tip != null)
+                {
+                    <div class="photo-tip">
+                        <p><strong>Tip:</strong></p>
+                        <p>@tip.Photo.Tip.Text</p>
+                        <p><strong>Agree:</strong> @tip.Photo.Tip.Agree_Count</p>
+                        <p><strong>Disagree:</strong> @tip.Photo.Tip.Disagree_Count</p>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p>No tips found for this place.</p>
+}
