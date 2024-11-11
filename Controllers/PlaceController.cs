@@ -1,10 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using GeoSearch.Models;
-using System.Collections.Generic;
 using GeoSearch.Data;
 using GeoSearch.Services;
-using System.Reflection;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace GeoSearch.Controllers;
 
@@ -12,18 +9,20 @@ public class PlaceController : Controller
 {
     private readonly ILogger<PlaceController> _logger;
     private readonly HttpClientHelper _httpClient;
+    private readonly IConfiguration _configuration;
 
     private readonly string FoursquarePlaceDetailsApiUrl;
     private readonly string FoursquarePlaceImageApiUrl;
     private readonly string FoursquarePlaceTipsApiUrl;
     private readonly IFavoritesService _favoritesService;
 
-    public PlaceController(ILogger<PlaceController> logger, HttpClientHelper httpClient, IFavoritesService FavoritesService)
+    public PlaceController(ILogger<PlaceController> logger, HttpClientHelper httpClient, IFavoritesService FavoritesService, IConfiguration configuration)
     {
         _logger = logger;
         _httpClient = httpClient;
         _favoritesService = FavoritesService;
-        var baseUrl = Environment.GetEnvironmentVariable("foursquare_apiurl");
+        _configuration = configuration;
+        var baseUrl = _configuration.GetConnectionString("foursquare_apiurl");
         FoursquarePlaceDetailsApiUrl = baseUrl + "/{0}";
         FoursquarePlaceImageApiUrl = baseUrl + "/{0}/photos";
         FoursquarePlaceTipsApiUrl = baseUrl + "/{0}/tips";
@@ -53,14 +52,14 @@ public class PlaceController : Controller
     private async Task<FoursquarePlaceDetailsModel> GetPlaceDetailsFromApi(string placeId)
     {
         var formattedUrl = string.Format(FoursquarePlaceDetailsApiUrl, placeId);
-        return await _httpClient.GetApiResponseAsync<FoursquarePlaceDetailsModel>(formattedUrl, Environment.GetEnvironmentVariable("foursquare_apikey"));
+        return await _httpClient.GetApiResponseAsync<FoursquarePlaceDetailsModel>(formattedUrl, _configuration.GetConnectionString("foursquare_apikey"));
     }
 
     private async Task<FoursquarePlaceTipsModel> GetPlaceTipsFromApi(string placeId)
     {
         var formattedUrl = string.Format(FoursquarePlaceTipsApiUrl, placeId);
         return new FoursquarePlaceTipsModel() {
-            Tips = await _httpClient.GetApiResponseAsync<List<FoursquareTip>>(formattedUrl, Environment.GetEnvironmentVariable("foursquare_apikey"))
+            Tips = await _httpClient.GetApiResponseAsync<List<FoursquareTip>>(formattedUrl, _configuration.GetConnectionString("foursquare_apikey"))
         }; 
     }
 
@@ -69,7 +68,7 @@ public class PlaceController : Controller
         var formattedUrl = string.Format(FoursquarePlaceImageApiUrl, placeId);
         return new FoursquarePlaceImagesModel()
         {
-            Images = await _httpClient.GetApiResponseAsync<List<PlaceImage>>(formattedUrl, Environment.GetEnvironmentVariable("foursquare_apikey"))
+            Images = await _httpClient.GetApiResponseAsync<List<PlaceImage>>(formattedUrl, _configuration.GetConnectionString("foursquare_apikey"))
         };
     }
 

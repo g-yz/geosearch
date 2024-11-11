@@ -8,14 +8,16 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly HttpClientHelper _httpClient;
+    private readonly IConfiguration _configuration;
     const int LIMIT = 25;
     private readonly string FoursquareSearchApiUrl;
 
-    public HomeController(ILogger<HomeController> logger, HttpClientHelper httpClient)
+    public HomeController(ILogger<HomeController> logger, HttpClientHelper httpClient, IConfiguration configuration)
     {
         _logger = logger;
         _httpClient = httpClient;
-        FoursquareSearchApiUrl = Environment.GetEnvironmentVariable("foursquare_apiurl") + "/search?";
+        _configuration = configuration;
+        FoursquareSearchApiUrl = _configuration.GetConnectionString("foursquare_apiurl") + "/search?";
     }
 
     public IActionResult Index()
@@ -60,7 +62,7 @@ public class HomeController : Controller
     private async Task<FoursquareResponse> GetPlacesFromApi(string location, int limit)
     {
         var formattedUrl = string.Format(FoursquareSearchApiUrl, location, limit);
-        return await _httpClient.GetApiResponseAsync<FoursquareResponse>(formattedUrl, Environment.GetEnvironmentVariable("foursquare_apikey"));
+        return await _httpClient.GetApiResponseAsync<FoursquareResponse>(formattedUrl, _configuration.GetConnectionString("foursquare_apikey"));
     }
     private async Task<FoursquareResponse> GetPlacesFromApi(SearchModel model, int limit)
     {
@@ -78,6 +80,6 @@ public class HomeController : Controller
             formattedUrl = $"{formattedUrl}&limit={model.Limit}";
         }
 
-        return await _httpClient.GetApiResponseAsync<FoursquareResponse>(formattedUrl, Environment.GetEnvironmentVariable("foursquare_apikey"));
+        return await _httpClient.GetApiResponseAsync<FoursquareResponse>(formattedUrl, _configuration.GetConnectionString("foursquare_apikey"));
     }
 }

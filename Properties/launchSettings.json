@@ -24,9 +24,7 @@
       "launchBrowser": true,
       "applicationUrl": "https://localhost:7064;http://localhost:5293",
         "environmentVariables": {
-            "ASPNETCORE_ENVIRONMENT": "Development",
-            "foursquare_apikey": "fsq3p+xDg1bycLJa1UAbtnWllJ+yyG2f6+eHrvkxthQD+uk=",
-            "foursquare_apiurl": "https://api.foursquare.com/v3/places"
+            "ASPNETCORE_ENVIRONMENT": "Development"
         }
     },
     "IIS Express": {
