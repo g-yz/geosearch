@@ -4,69 +4,108 @@
     ViewBag.Title = "Search Locations";
 }
 
-<!-- Search Form -->
-@using (Html.BeginForm("FindLocations", "Home", FormMethod.Post))
-{
-    <div>
-        @Html.LabelFor(m => m.Location)
-        @Html.TextBoxFor(m => m.Location, new { @class = "form-control" })
-    </div>
-    <button type="submit" class="btn btn-primary">Search</button>
-}
+<div class="search-container">
+    <form action="@Url.Action("FindLocations", "Home")" method="get" class="input-group">
+        @Html.TextBoxFor(m => m.Location, new { @class = "form-control search-input", placeholder = "Search Locations..." })
+        <input id="latitude" name="Latitude" type="hidden" />
+        <input id="longitude" name="Longitude" type="hidden" />
+        @* <input id="limit" name="limit" type="hidden" /> *@
+        <button type="submit" class="btn btn-secondary search-button">
+            <i class="fa fa-search"></i>
+        </button>
+    </form>
+    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+    {
+        <p class="alert-message"><i>@ViewBag.ErrorMessage</i></p>
+    }
+</div>
 
-<!-- Error message if no results found -->
-@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
-{
-    <p style="color: red;">@ViewBag.ErrorMessage</p>
-}
-
-<!-- Display the list of coordinates if available -->
-@if (Model != null && Model.Response != null  && Model.Response.Results != null && Model.Response.Results.Count > 0)
-{
-    <h3>Results for "@Model.Location":</h3>
-    <ul>
-        @foreach (var place in Model.Response.Results)
-        {
-            <li>
-                <strong>@place.Name</strong><br />
-                Latitude: @place.Geocodes.Main.Latitude, Longitude: @place.Geocodes.Main.Longitude
-            </li>
-        }
-    </ul>
-}
-
-<!-- Map Container -->
-<div id="map" style="width: 100%; height: 400px;"></div>
+<div id="map"></div>
 
 <script>
     function initializeMap() {
-        var map = L.map('map').setView([51.505, -0.09], 13);
+        var map = L.map('map', {
+            zoomControl: false
+        }).setView([51.505, -0.09], 13);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
+        L.control.zoom({
+            position: 'bottomright'
+        }).addTo(map);
+        map.on('drag', function () {
+            updateFormWithCoordinates(map);
+        });
+        updateFormWithCoordinates(map);
         return map;
     }
+    function updateFormWithCoordinates(map) {
+        var center = map.getCenter();
+        document.getElementById('latitude').value = center.lat;
+        document.getElementById('longitude').value = center.lng;
+    }
+    function addMarkerToMap(map, place) {
+        var latitude = place?.geocodes?.main?.latitude;
+        var longitude = place?.geocodes?.main?.longitude;
+        var placeId = place?.fsq_id;
 
-    function addMarkerToMap(map, latitude, longitude, placeName, placeId) {
         var marker = L.marker([latitude, longitude]).addTo(map);
-        bindPopupToMarker(marker, placeName, latitude, longitude, placeId);
+        addActionToMarker(marker, placeId);
+        bindPopupToMarker(marker, place);
+        addHoverEffect(marker);
         return marker;
     }
 
-    function bindPopupToMarker(marker, placeName, latitude, longitude, placeId) {
+    function addActionToMarker(marker, placeId) {
+        marker.on('click', function () {
+            window.location.href = '/Place/Details/' + placeId;
+        });
+    }
+
+    function bindPopupToMarker(marker, place) {
+        var placeName = place?.name;
+        var placeId = place?.fsq_id;
+        var address = place?.location?.formatted_Address;
+        var categories = place?.categories;
+        console.log(place?.location);
         var popupContent = `
-        <strong>${placeName}</strong><br />
-        Latitude: ${latitude}<br />
-        Longitude: ${longitude}<br />
-        <form method="post" action="@Url.Action("AddAsFavorite", "Place")">
-                <input type="hidden" name="FsqId" value="${placeId}" />
-            <input type="hidden" name="Name" value="${placeName}" />
-            <input type="hidden" name="Address" value="Some address" />
-            <button type="submit" class="popup-btn">Add to Favorites</button>
-        </form>
-            <a href="/Place/Details/${placeId}" class="popup-btn">View Details</a>
+        <div class="popup-content">
+            <div>
+                <div class="header-actions">
+                    <form method="post" action="@Url.Action("AddAsFavorite", "Place")">
+                        <input type="hidden" name="FsqId" value="${placeId}" />
+                        <input type="hidden" name="Name" value="${placeName}" />
+                        <input type="hidden" name="Address" value="${address}" />
+                        <button type="submit" class="btn">
+                            <i class="fa fa-star fa-lg text-warning icon-action"></i>
+                        </button>
+                    </form>
+                    <h4>${placeName}</h4>
+                </div>
+                <p><i>${address}</i></p>
+                <div>
+                    ${generateCategoryIcons(categories)}
+                </div>
+            </div>
+            <div class="popup-actions">
+                <a href="/Place/Details/${placeId}">
+                    See more...
+                </a>
+            </div>
+        </div>
     `;
+
       marker.bindPopup(popupContent);
+    }
+
+    function generateCategoryIcons(categories) {
+        return categories.map(category => {
+            const iconPrefix = category?.icon?.prefix;
+            const iconSuffix = category?.icon?.suffix;
+            const iconUrl = iconPrefix + '32' + iconSuffix;
+        
+            return `<img src="${iconUrl}" alt="${category?.short_name}" class="img-icon"/>`;
+        }).join('');
     }
 
     function addHoverEffect(marker) {
@@ -89,8 +128,7 @@
             var placeName = place?.name;
             var placeId = place?.fsq_id;
 
-            var marker = addMarkerToMap(map, latitude, longitude, placeName, placeId);
-            addHoverEffect(marker);
+            var marker = addMarkerToMap(map, place);
             markerPositions.push([latitude, longitude]);
         });
 
@@ -114,7 +152,6 @@
     function loadMap() {
         var map = initializeMap();
         var places = @Html.Raw(Json.Serialize(Model.Response.Results));
-
         if (places != null && places.length > 0) {
             var markerPositions = addMarkersToMap(map, places);
             var geoBounds = @Html.Raw(Json.Serialize(Model.Response.Context?.Geo_bounds));

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using GeoSearch.Data;
 using GeoSearch.Services;
 using System.Reflection;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace GeoSearch.Controllers;
 
@@ -36,7 +37,7 @@ public class PlaceController : Controller
         {
             return RedirectToAction("Error");
         }
-
+        
         var placeDetails = await GetPlaceDetailsFromApi(placeId);
         var placeTips = await GetPlaceTipsFromApi(placeId);
         var placeImages = await GetPlaceImagesFromApi(placeId);
@@ -87,6 +88,17 @@ public class PlaceController : Controller
         if (model != null)
         {
             await _favoritesService.AddAsync(model);
+        }
+
+        return RedirectToAction("FavoritePlace");
+    }
+
+    [HttpPost]
+    public async Task<ActionResult> RemoveFavorite(string fsqId)
+    {
+        if (!string.IsNullOrEmpty(fsqId))
+        {
+            await _favoritesService.DeleteAsync(fsqId);
         }
 
         return RedirectToAction("FavoritePlace");

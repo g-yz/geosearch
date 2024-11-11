@@ -7,6 +7,7 @@ public interface IFavoritesService
 {
     Task<bool> AddAsync(FavoritePlace favoritePlace);
     Task<IEnumerable<FavoritePlace>> GetAllAsync();
+    Task<bool> DeleteAsync(string fsqId);
 }
 
 public class FavoritesService : IFavoritesService
@@ -20,6 +21,11 @@ public class FavoritesService : IFavoritesService
     public async Task<bool> AddAsync(FavoritePlace favoritePlace)
     {
         return await _favoriteRepository.CreateAsync(favoritePlace);
+    }
+
+    public async Task<bool> DeleteAsync(string fsqId)
+    {
+        return await _favoriteRepository.DeleteAsync(fsqId);
     }
 
     public async Task<IEnumerable<FavoritePlace>> GetAllAsync()

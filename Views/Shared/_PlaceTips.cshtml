@@ -1,65 +1,41 @@
 ﻿@model GeoSearch.Models.FoursquarePlaceTipsModel
 
-
-<h2>Reviews</h2>
-
 @if (Model?.Tips != null && Model.Tips.Count > 0)
 {
-    <div class="tips-gallery">
-        @foreach (var tip in Model.Tips)
-        {
-            <div class="tip-card">
+    @foreach (var tip in Model.Tips)
+    {
+        <div class="card border-warning bg-warning-custom text-warning @(tip.Photo != null ? "tall" : "")">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-comment"></i> Tip</h5>
                 @if (!string.IsNullOrEmpty(tip.Text))
                 {
-                    <p><strong>Tip:</strong> @tip.Text</p>
+                    <p class="clamped-text scrollable-text">@tip.Text</p>
                 }
-
-                @if (!string.IsNullOrEmpty(tip.Lang))
-                {
-                    <p><strong>Language:</strong> @tip.Lang</p>
-                }
-
-                @if (tip.Agree_Count > 0)
-                {
-                    <p><strong>Agree:</strong> @tip.Agree_Count</p>
-                }
-
-                @if (tip.Disagree_Count > 0)
-                {
-                    <p><strong>Disagree:</strong> @tip.Disagree_Count</p>
-                }
-
-                @if (tip.CreatedAt != default(DateTime))
-                {
-                    <p><strong>Date:</strong> @tip.CreatedAt.ToString("MMMM dd, yyyy")</p>
-                }
-
-
                 @if (tip.Photo != null)
                 {
-                    <div class="photo">
-                        <img src="@($"{tip.Photo.Prefix}250x300{tip.Photo.Suffix}")" alt="@($"Image {@tip.Id}")" />
-                        @if (tip.Photo.Classifications != null)
+                    <img src="@($"{tip.Photo.Prefix}250x250{tip.Photo.Suffix}")" alt="@($"Image {@tip.Id}")" class="image-card" />
+                }     
+                <div style="display: flex; justify-content: space-between;">
+                    <div>
+                        @if (tip.CreatedAt != default(DateTime))
                         {
-                            <p><strong>Classifications:</strong> @string.Join(", ", tip.Photo.Classifications)</p>
+                            <i>@tip.CreatedAt.ToString("MMMM dd, yyyy")</i>
                         }
                     </div>
-                }
-
-                @if (tip.Photo?.Tip != null)
-                {
-                    <div class="photo-tip">
-                        <p><strong>Tip:</strong></p>
-                        <p>@tip.Photo.Tip.Text</p>
-                        <p><strong>Agree:</strong> @tip.Photo.Tip.Agree_Count</p>
-                        <p><strong>Disagree:</strong> @tip.Photo.Tip.Disagree_Count</p>
+                    <div>
+                        <i class="fas fa-thumbs-up"></i> @tip.Agree_Count
+                        <i class="fas fa-thumbs-down"></i> @tip.Disagree_Count
                     </div>
-                }
+                </div>
             </div>
-        }
-    </div>
+        </div>
+    }
 }
 else
 {
-    <p>No tips found for this place.</p>
+    <div class="card border-secondary bg-secondary-custom text-secondary">
+        <div class="card-body">
+            <p>No tips found for this place.</p>
+        </div>
+    </div>
 }

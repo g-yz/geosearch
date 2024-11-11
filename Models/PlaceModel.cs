@@ -3,6 +3,9 @@
 public class SearchModel
 {
     public string Location { get; set; }
+    public string Latitude { get; set; }
+    public string Longitude { get; set; }
+    public string Limit { get; set; }
     public FoursquareResponse Response { get; set; } = new FoursquareResponse();
 }
 
@@ -19,6 +22,8 @@ public class PlaceModel
     public string Fsq_id { get; set; }
     public string Name { get; set; }
     public Geocode Geocodes { get; set; }
+    public List<Category> Categories { get; set; }
+    public Location Location { get; set; }
 }
 
 public class Geocode

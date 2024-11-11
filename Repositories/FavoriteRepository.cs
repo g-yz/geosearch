@@ -5,10 +5,10 @@ namespace GeoSearch.Repositories;
 
 public interface IFavoriteRepository
 {
-    Task<IEnumerable<FavoritePlace>> GetAllAsync();
     Task<bool> CreateAsync(FavoritePlace place);
+    Task<bool> DeleteAsync(string fsqId);
+    Task<IEnumerable<FavoritePlace>> GetAllAsync();
 }
-
 
 public class FavoriteRepository : IFavoriteRepository
 {
@@ -24,6 +24,15 @@ public class FavoriteRepository : IFavoriteRepository
         if (existingPlace != null) return false;
 
         _context.FavoritePlaces.Add(place);
+        var result = await _context.SaveChangesAsync();
+        return result > 0;
+    }
+
+    public async Task<bool> DeleteAsync(string fsqId)
+    {
+        var existingPlace = await _context.FavoritePlaces.FirstOrDefaultAsync(fp => fp.FsqId == fsqId);
+        if (existingPlace == null) return false;
+        _context.FavoritePlaces.Remove(existingPlace);
         var result = await _context.SaveChangesAsync();
         return result > 0;
     }

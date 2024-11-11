@@ -4,29 +4,15 @@
     ViewBag.Title = "Place Details";
     var placeId = ViewBag.PlaceId as string;
     var placeDetails = ViewBag.PlaceDetails as FoursquarePlaceDetailsModel;
-    var placeTips = ViewBag.PlacesTips as FoursquarePlaceTipsModel;
+    var placeTips = ViewBag.PlaceTips as FoursquarePlaceTipsModel;
     var placeImages = ViewBag.PlaceImages as FoursquarePlaceImagesModel;
 }
 
-@if (placeDetails != null)
-{
-    <form asp-action="AddAsFavorite" method="post">
-        <input type="hidden" name="FsqId" value="@placeId" />
-        <input type="hidden" name="Name" value="@placeDetails.Name" />
-        <input type="hidden" name="Address" value="@placeDetails.Location.Formatted_Address" />
-
-        <button type="submit" class="btn btn-primary">Mark as Favorite</button>
-    </form>
-}
-
-<div>
-    @Html.Partial("_PlaceDetails", placeDetails)
-</div>
-
-<div>
-    @Html.Partial("_PlaceTips", placeTips)
-</div>
-
-<div>
-    @Html.Partial("_PlaceImages", placeImages)
-</div>
+<div class="main-container">
+    <div class="grid-wrapper">
+        
+        @Html.Partial("_PlaceDetails", placeDetails)
+        @Html.Partial("_PlaceTips", placeTips)
+        @Html.Partial("_PlaceImages", placeImages)
+    </div>
+</div> 

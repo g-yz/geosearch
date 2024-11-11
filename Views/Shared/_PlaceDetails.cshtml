@@ -2,97 +2,181 @@
 
 @if (Model != null)
 {
-    <h2>@Model.Name</h2>
-
-    <!-- Place Info -->
-    <p><strong>Description:</strong> @Model.Description</p>
-    <p><strong>Email:</strong> @Model.Email</p>
-    <p><strong>Fax:</strong> @Model.Fax</p>
-    <p><strong>Phone:</strong> @Model.Tel</p>
-    <p><strong>Website:</strong> <a href="@Model.Website" target="_blank">@Model.Website</a></p>
-    <p><strong>Verified:</strong> @(Model.Verified ? "Yes" : "No")</p>
-
-    <!-- Categories -->
-    @if (Model != null && Model.Location != null)
+    <!-- Title -->
+    @if (Model != null)
     {
-        <h2>Location</h2>
-        <p><strong>Address:</strong> @Model.Location.Formatted_Address</p>
+        <div class="card border-success bg-success-custom">
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <div style="display: flex; flex-direction:column; gap: 4px;">
+                    <div style="display: flex; gap: 12px;">
+                        <form asp-action="AddAsFavorite" method="post">
+                            <input type="hidden" name="FsqId" value="@Model.Fsq_Id" />
+                            <input type="hidden" name="Name" value="@Model.Name" />
+                            @if (Model.Location != null)
+                            {
+                                <input type="hidden" name="Address" value="@Model.Location.Formatted_Address" />
+                            }
+                            <button type="submit" class="btn btn-link p-0 text-warning" style="border: none; background: none;">
+                                <i class="fas fa-star fa-2x" id="favoriteIcon"></i>
+                            </button>
+                        </form>
+                        <div>
+                            <h3 style="margin:0;"><strong style="color:#23232e;">@Model.Name</strong></h3>
+                            <i class="text-secondary">@Model.Timezone</i>
+                        </div>
+                    </div>
+                    <div class="card-text">
+                        @Model.Description
+                    </div>
+                </div>
+            </div>
+        </div>
     }
+
+    <!-- Info -->
+    <div class="card border-primary bg-primary-custom text-primary @(Model.Fax != null ? "tall" : "")">
+        <div class="card-body">
+            <h5 class="card-title">Contact</h5>
+            <!-- Place Info -->
+            @if (Model.Email != null)
+            {
+                <p><strong><i class="fas fa-envelope fa-lg card-icon bg-primary"></i></strong> @Model.Email</p>
+            }
+            @if (Model.Fax != null)
+            {
+                <p><strong><i class="fas fa-fax fa-lg card-icon bg-primary"></i></strong> @Model.Fax</p>
+            }
+            @if (Model.Tel != null)
+            {
+                <p><strong><i class="fas fa-phone fa-lg card-icon bg-primary"></i></strong> @Model.Tel</p>
+            }
+            @if (Model.Website != null)
+            {
+                <p><strong><i class="fas fa-globe fa-lg card-icon bg-primary"></i>
+                    </strong> <a href="@Model.Website" target="_blank" class="card-link">@Model.Website</a>
+                </p>
+            }
+            <!-- Location -->
+            @if (Model != null && Model.Location != null)
+            {
+                <p><strong><i class="fas fa-map-pin fa-lg card-icon bg-primary"></i></strong> @Model.Location.Formatted_Address</p>
+            }
+            <!-- Verified -->
+            <p><strong><i class="fas fa-check fa-lg card-icon bg-primary"></i></strong> Verified: @(Model.Verified ? "Yes" : "No")</p>
+        </div>
+    </div>
 
     <!-- Categories -->
     @if (Model != null && Model.Categories != null)
     {
-        <h3>Categories</h3>
-        <ul>
-            @foreach (var category in Model.Categories)
-            {
-                <li>
-                    <strong>@category.Name</strong>  (@category.Short_Name)
-                    @if (category.Icon != null)
-                    {
-                        var iconUrl = $"{category.Icon.Prefix}bg_32{category.Icon.Suffix}";
-                        <img src="@iconUrl" alt="@category.Name" />
-                    }
-                </li>
-            }
-        </ul>
+        <div class="card border-danger bg-danger-custom text-danger">
+            <div class="card-body">
+                <h5 class="card-title">Categories</h5>
+                @foreach (var category in Model.Categories)
+                {
+                    <div class="d-flex">
+                        @if (category.Icon != null)
+                        {
+                            var iconUrl = $"{category.Icon.Prefix}32{category.Icon.Suffix}";
+                            <img class="img-icon" src="@iconUrl" alt="@category.Name" style="margin-right: 10px;" />
+                        }
+                        <div class="d-flex flex-column">
+                            <strong>@category.Short_Name</strong> 
+                            <i>@category.Name</i>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
     }
 
     <!-- Hours -->
     @if (Model != null && Model.Hours != null)
     {
-        <h3>Hours</h3>
-        <p><strong>Is Local Holiday:</strong> @(Model.Hours.Is_Local_Holiday ? "Yes" : "No")</p>
-        <p><strong>Open Now:</strong> @(Model.Hours.Open_Now ? "Yes" : "No")</p>
-    }
-
-    <!-- Photos -->
-    @if (Model != null && Model.Photos != null)
-    {
-        <h3>Photos</h3>
-        @foreach (var photo in Model.Photos)
-        {
-            <div>
-                <img src="@($"{photo.Prefix}250x300{photo.Suffix}")" alt="@($"Image {@photo.Id}")" />
-                <p><strong>Date:</strong> @photo.Created_At.ToString("MMMM dd, yyyy")</p>
+        <div class="card border-warning bg-warning-custom text-warning">
+            <div class="card-body">
+                <h5 class="card-title">Hours</h5>
+                <p><strong>Is Local Holiday:</strong>
+                    @if (Model.Hours.Is_Local_Holiday)
+                    {
+                        <i class="fas fa-check-circle fa-lg"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-times-circle fa-lg"></i>
+                    }
+                </p>
+                <p><strong>Open Now:</strong>
+                    @if (Model.Hours.Open_Now)
+                    {
+                        <i class="fas fa-check-circle fa-lg"></i>
+                    }
+                    else
+                    {
+                        <i class="fas fa-times-circle fa-lg"></i>
+                    }
+                </p>
             </div>
-        }
+        </div>
     }
 
     <!-- Stats -->
     @if (Model != null && Model.Stats != null)
     {
-        <h3>Stats</h3>
-        <p><strong>Total Photos:</strong> @Model.Stats.Total_Photos</p>
-        <p><strong>Total Ratings:</strong> @Model.Stats.Total_Ratings</p>
-        <p><strong>Total Tips:</strong> @Model.Stats.Total_Tips</p>
+        <div class="card wide border-success bg-success-custom text-success">
+            <div class="card-body">
+                <h5 class="card-title">Stats</h5>
+                    <div class="card-stat-container ">
+                        <div class="card-stat">
+                            <div class="stat-number bg-success"><strong>@Model.Stats.Total_Photos</strong></div>
+                            <div><strong>Total Photos</strong></div>
+                        </div>
+                        <div class="card-stat">
+                            <div class="stat-number bg-success"><strong>@Model.Stats.Total_Ratings</strong></div>
+                            <div><strong>Total Ratings</strong></div>
+                        </div>
+                        <div class="card-stat">
+                            <div class="stat-number bg-success"><strong>@Model.Stats.Total_Tips</strong></div>
+                            <div><strong>Total Tips</strong></div>
+                        </div>
+                    </div>
+            </div>
+        </div>
     }
 
     <!-- Social Media -->
     @if (Model != null && Model.Social_Media != null)
     {
-        <h3>Social Media</h3>
-        <p>
-            <strong>Facebook:</strong>
-            <a href="@($"https://facebook.com/{Model.Social_Media.Facebook_Id}")" target="_blank">
-                @Model.Social_Media.Facebook_Id
-            </a>
-        </p>
-        <p>
-            <strong>Instagram:</strong>
-            <a href="@($"https://instagram.com/{Model.Social_Media.Instagram}")" target="_blank">
-                @Model.Social_Media.Instagram
-            </a>
-        </p>
-        <p>
-            <strong>Twitter:</strong>
-            <a href="@($"https://twitter.com/{Model.Social_Media.Twitter}")" target="_blank">
-                @Model.Social_Media.Twitter
-            </a>
-        </p>
+        <div class="card border-info bg-info-custom text-info">
+            <div class="card-body">
+                <h5 class="card-title">Social Media</h5>
+                <p>
+                    <strong><i class="fab fa-facebook fa-lg card-icon bg-info"></i></strong>
+                    <a href="@($"https://facebook.com/{Model.Social_Media.Facebook_Id}")" target="_blank" class="card-link">
+                        @Model.Social_Media.Facebook_Id
+                    </a>
+                </p>
+                <p>
+                    <strong><i class="fab fa-instagram fa-lg card-icon bg-info"></i></strong>
+                    <a href="@($"https://instagram.com/{Model.Social_Media.Instagram}")" target="_blank" class="card-link">
+                        @Model.Social_Media.Instagram
+                    </a>
+                </p>
+                <p>
+                    <strong><i class="fab fa-twitter fa-lg card-icon bg-info"></i></strong>
+                    <a href="@($"https://twitter.com/{Model.Social_Media.Twitter}")" target="_blank" class="card-link">
+                        @Model.Social_Media.Twitter
+                    </a>
+                </p>
+                </div>
+            </div>
     }
 }
 else
 {
-    <p>No details found for this place.</p>
+    <div class="card border-secondary bg-secondary-custom text-secondary">
+        <div class="card-body">
+            <p>No details found for this place.</p>
+        </div>
+    </div>
 }
